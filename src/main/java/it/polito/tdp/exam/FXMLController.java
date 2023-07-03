@@ -5,9 +5,12 @@
 package it.polito.tdp.exam;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.exam.model.CoppiaA;
 import it.polito.tdp.exam.model.Model;
+import it.polito.tdp.exam.model.Team;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,10 +38,10 @@ public class FXMLController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbAnno"
-    private ComboBox<?> cmbAnno; // Value injected by FXMLLoader
+    private ComboBox<Integer> cmbAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbSquadra"
-    private ComboBox<?> cmbSquadra; // Value injected by FXMLLoader
+    private ComboBox<String> cmbSquadra; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -48,12 +51,29 @@ public class FXMLController {
 
     @FXML
     void handleCreaGrafo(ActionEvent event) {
-
+    	String nomeTeam = this.cmbSquadra.getValue();
+    	if(nomeTeam == null) {
+    		this.txtResult.setText("Inserire un numero nel box Squadra");
+    		return;
+    	}
+    	String s = model.creaGrafo(nomeTeam);
+    	this.txtResult.setText(s);
+    	
     }
 
     @FXML
     void handleDettagli(ActionEvent event) {
-
+    	Integer anno = this.cmbAnno.getValue();
+    	String s = "Archi partenti dall'anno "+anno+": \n";
+    	if(anno == null) {
+    		this.txtResult.setText("Inserire un numero nel box Anno");
+    		return;
+    	}
+    	List<CoppiaA> res = model.getAllArchiAdiacenti(anno);
+    	for(CoppiaA x : res) {
+    		s += x.getA1()+"<->"+x.getA2()+" ("+x.getPeso()+")\n";
+    	}
+    	this.txtResult.setText(s);
     }
 
     @FXML
@@ -70,11 +90,17 @@ public class FXMLController {
         assert cmbSquadra != null : "fx:id=\"cmbSquadra\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtTifosi != null : "fx:id=\"txtTifosi\" was not injected: check your FXML file 'Scene.fxml'.";
+        for(int i = 1871; i <= 2019; i++) {
+        	this.cmbAnno.getItems().add(i);
+        }
 
     }
 
     public void setModel(Model model) {
         this.model = model;
+        for(Team t : model.getAllTeams()) {
+        	this.cmbSquadra.getItems().add(t.getName());
+        }
     }
 
 }

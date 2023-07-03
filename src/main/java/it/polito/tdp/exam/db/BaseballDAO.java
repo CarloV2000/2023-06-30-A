@@ -156,4 +156,65 @@ public class BaseballDAO {
 		return null;
 	}
 
+	public List<Integer> readAllAnni(Team t) {
+		String sql = "SELECT DISTINCT t.year "
+				+ "FROM teams t "
+				+ "WHERE t.name = 'Philadelphia Athletics' ";
+		List<Integer> result = new ArrayList<Integer>();
+
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, t.getName());
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				Integer n = rs.getInt("year");
+				result.add(n);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
+
+	public Integer getWeight(Integer x, Integer y, Team t) {
+		String sql = "SELECT COUNT(DISTINCT a1.playerID)AS peso "
+				+ "FROM teams t1, appearances a1, teams t2, appearances a2 "
+				+ "WHERE t1.teamCode = a1.teamCode AND t2.teamCode = a2.teamCode "
+				+ "AND a1.playerID = a2.playerID AND t1.name = ? AND t2.name = ? "
+				+ "AND t1.year = a1.year AND t2.year = a2.year "
+				+ "AND a1.year = ? AND a2.year = ? ";
+		
+		Integer result = 0;
+
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, t.getName());
+			st.setString(2, t.getName());
+			st.setInt(3, x);
+			st.setInt(4, y);
+
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				result = rs.getInt("peso");
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
+
 }
